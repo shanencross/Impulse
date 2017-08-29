@@ -1,0 +1,604 @@
+fileFormatVersion: 2
+guid: d34669a40e6d70e42b1ef6385dbdf7ad
+timeCreated: 1504036563
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: Surge_0
+    21300002: Surge_1
+    21300004: Surge_2
+    21300006: Surge_3
+    21300008: Surge_4
+    21300010: Surge_5
+    21300012: Surge_6
+    21300014: Surge_7
+    21300016: Surge_8
+    21300018: Surge_9
+    21300020: Surge_10
+    21300022: Surge_11
+    21300024: Surge_12
+    21300026: Surge_13
+    21300028: Surge_14
+    21300030: Surge_15
+    21300032: Surge_16
+    21300034: Surge_17
+    21300036: Surge_18
+    21300038: Surge_19
+    21300040: Surge_20
+    21300042: Surge_21
+    21300044: Surge_22
+    21300046: Surge_23
+    21300048: Surge_24
+    21300050: Surge_25
+    21300052: Surge_26
+    21300054: Surge_27
+    21300056: Surge_28
+    21300058: Surge_29
+    21300060: Surge_30
+    21300062: Surge_31
+    21300064: Surge_32
+    21300066: Surge_33
+    21300068: Surge_34
+    21300070: Surge_35
+  serializedVersion: 4
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: 0
+    aniso: -1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 20
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  platformSettings:
+  - buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Standalone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: iPhone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Android
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Surge_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 150.83333
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_1
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 150.83333
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_2
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 150.83333
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_3
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 150.83333
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_4
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 150.83333
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_5
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 150.83333
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 120.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_7
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 120.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_8
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 120.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_9
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 120.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_10
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 120.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_11
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 120.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 90.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_13
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 90.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_14
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 90.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_15
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 90.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_16
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 90.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_17
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 90.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 60.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_19
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 60.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_20
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 60.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_21
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 60.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_22
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 60.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_23
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 60.833336
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 30.833334
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_25
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 30.833334
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_26
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 30.833334
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_27
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 30.833334
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_28
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 30.833334
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_29
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 30.833334
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0.83333397
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_31
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 0.83333397
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_32
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 0.83333397
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_33
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 0.83333397
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_34
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 0.83333397
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Surge_35
+      rect:
+        serializedVersion: 2
+        x: 205
+        y: 0.83333397
+        width: 41.166668
+        height: 30.166666
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
