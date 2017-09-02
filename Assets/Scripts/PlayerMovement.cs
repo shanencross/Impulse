@@ -39,10 +39,6 @@ public class PlayerMovement : MonoBehaviour {
 			Debug.LogError("No Ground Check transform set.");
 	}
 
-	void Start() {
-//		rb.AddForce(new Vector2(100, 1000));
-	}
-
 	// Update is called once per frame
 	void Update () {
 		float horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -50,7 +46,7 @@ public class PlayerMovement : MonoBehaviour {
 //		movementDirection = (new Vector2(horizontalInput, verticalInput)).normalized;
 		movementDirection = (new Vector2(horizontalInput, movementDirection.y)).normalized;
 
-		isGrounded = Physics2D.Linecast(transform.position, groundCheck.position, LayerMask.GetMask("Ground"));
+		isGrounded = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
 
 		if (Input.GetButtonDown("Jump") && isGrounded)
 			jumping = true;
