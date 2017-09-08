@@ -6,9 +6,11 @@ public class PlayerMovement : MonoBehaviour {
 
 	public float speed = 20;
 	public float jumpPower = 9;
+	public float velocityThreshold = 1;
+	public float maxSlope = 46;
 
-	public enum movementType {Force, TorqueCenter, TorqueEdge};
-	public movementType useTorque = movementType.Force;
+	public enum movementType {Force, TorqueCenter, TorqueEdge, ForceAtAngle};
+	public movementType moveType = movementType.Force;
 
 	public Vector2 pointToRotateAround = new Vector2(0, 0);
 
@@ -18,16 +20,26 @@ public class PlayerMovement : MonoBehaviour {
 
 	[SerializeField]
 	bool isGrounded = false;
+	[SerializeField]
+	bool airControl = true;
 
-	bool useInstantJumpAcceleration = false;
+	[SerializeField]
+	float angle = 0;
+	[SerializeField]
+	Vector2 jumpDirection = Vector2.up;
 //
 //	bool isGrounded = false;
 
 	[SerializeField]
 	Vector2 movementDirection = new Vector2(0, 0);
-	bool jumping = false;
+	[SerializeField]
+	bool jumpPressed = false;
+	[SerializeField]
+	bool jumpingOffGround = false; // jumping, but isGrounded detector hasn't left ground yet
 
 	Rigidbody2D rb;
+
+
 
 	void Awake() {
 		rb = GetComponent<Rigidbody2D>();
@@ -42,38 +54,88 @@ public class PlayerMovement : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float horizontalInput = Input.GetAxisRaw("Horizontal");
-//		float verticalInput = Input.GetAxisRaw("Vertical");
-//		movementDirection = (new Vector2(horizontalInput, verticalInput)).normalized;
 		movementDirection = (new Vector2(horizontalInput, movementDirection.y)).normalized;
 
-		isGrounded = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
+		RaycastHit2D hit = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
 
-		if (Input.GetButtonDown("Jump") && isGrounded)
-			jumping = true;
+		isGrounded = (bool)hit;
+
+		if (jumpingOffGround && !isGrounded)
+			jumpingOffGround = false;
+
+
+		angle = -Mathf.Atan(hit.normal.x/hit.normal.y) * 180 / Mathf.PI; 
+
+		jumpDirection = hit.normal;
+//		angle = Vector2.Angle(hit.normal, Vector2.up);
+//		angle = Mathf.Acos(hit.normal.y/hit.normal.magnitude) * 180 / Mathf.PI;
+
+
+		if (Input.GetButtonDown("Jump") && isGrounded && !jumpPressed)
+			jumpPressed = true;
+		
 	}
 
 	void FixedUpdate() {
-		if (jumping) {
-			if (useInstantJumpAcceleration)
-				rb.velocity = new Vector2(rb.velocity.x, jumpPower);
-			else
-				rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
-			
-			jumping = false;
+		if (!float.IsNaN(angle)) {
+			rb.MoveRotation(angle);
 		}
 
-		Move(movementDirection);
-//		MoveAlongFloor(movementDirection);
+
+		if (Mathf.Abs(angle) <= maxSlope 
+				&& Mathf.Abs(rb.velocity.magnitude) <= velocityThreshold 
+				&& movementDirection == Vector2.zero 
+				&& !jumpPressed 
+				&& !jumpingOffGround 
+				&& isGrounded) {
+			rb.velocity = Vector2.zero;
+			rb.gravityScale = 0;
+		} 
+
+
+		else {
+			rb.gravityScale = 1;
+			Move(movementDirection);
+			if (jumpPressed) {
+				Jump();
+			}
+		}
+			
+	}
+
+	void Jump() {
+		Debug.Log("jumping");
+//		rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+		rb.AddForce(jumpDirection * jumpPower, ForceMode2D.Impulse);
+		jumpingOffGround = true;
+		jumpPressed = false;
 	}
 
 	void Move(Vector2 direction) {
-		if (useTorque == movementType.Force)
+		if (moveType == movementType.Force)
 			rb.AddForce(movementDirection * speed);
-		else if (useTorque == movementType.TorqueCenter)
+		else if (moveType == movementType.TorqueCenter)
 			rb.AddTorque(-movementDirection.x * speed);
-		else if (useTorque == movementType.TorqueEdge) {
+		else if (moveType == movementType.TorqueEdge) {
 			Vector2 relativeRotationPoint = movementDirection.x * pointToRotateAround;
 			Vector2 rotationPoint = (Vector2)transform.position + relativeRotationPoint;
+		} 
+		else if (moveType == movementType.ForceAtAngle) {
+
+			if (float.IsNaN(angle)) {
+				if (airControl)
+					rb.AddForce(movementDirection * speed);
+				return;
+			} 
+
+			float angle_radians = angle * Mathf.PI / 180;
+
+			Vector2 forceDirection = new Vector2(Mathf.Cos(angle_radians), Mathf.Sin(angle_radians));
+
+			forceDirection *= movementDirection.x;
+
+			rb.AddForce(forceDirection * speed);
+
 		}
 	}
 
