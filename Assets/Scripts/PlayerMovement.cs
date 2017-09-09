@@ -27,8 +27,6 @@ public class PlayerMovement : MonoBehaviour {
 	float angle = 0;
 	[SerializeField]
 	Vector2 jumpDirection = Vector2.up;
-//
-//	bool isGrounded = false;
 
 	[SerializeField]
 	Vector2 movementDirection = new Vector2(0, 0);
@@ -38,7 +36,6 @@ public class PlayerMovement : MonoBehaviour {
 	bool jumpingOffGround = false; // jumping, but isGrounded detector hasn't left ground yet
 
 	Rigidbody2D rb;
-
 
 
 	void Awake() {
@@ -58,18 +55,24 @@ public class PlayerMovement : MonoBehaviour {
 
 		RaycastHit2D hit = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
 
+		bool wasGrounded = isGrounded;
 		isGrounded = (bool)hit;
 
 		if (jumpingOffGround && !isGrounded)
 			jumpingOffGround = false;
 
 
-		angle = -Mathf.Atan(hit.normal.x/hit.normal.y) * 180 / Mathf.PI; 
+//		angleSign = Mathf.Sign(-Mathf.Atan(hit.normal.x/hit.normal.y) * 180 / Mathf.PI); 
 
 		jumpDirection = hit.normal;
-//		angle = Vector2.Angle(hit.normal, Vector2.up);
-//		angle = Mathf.Acos(hit.normal.y/hit.normal.magnitude) * 180 / Mathf.PI;
+		if (isGrounded) {
+			angle = Vector2.SignedAngle(Vector2.up, hit.normal);
+		}
+//		else
+//			angle = 0;
 
+		if (wasGrounded && !isGrounded)
+			angle = Mathf.Sign(angle) * (Mathf.Abs(angle) - 180);
 
 		if (Input.GetButtonDown("Jump") && isGrounded && !jumpPressed)
 			jumpPressed = true;
@@ -105,7 +108,6 @@ public class PlayerMovement : MonoBehaviour {
 
 	void Jump() {
 		Debug.Log("jumping");
-//		rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 		rb.AddForce(jumpDirection * jumpPower, ForceMode2D.Impulse);
 		jumpingOffGround = true;
 		jumpPressed = false;
@@ -122,25 +124,20 @@ public class PlayerMovement : MonoBehaviour {
 		} 
 		else if (moveType == movementType.ForceAtAngle) {
 
-			if (float.IsNaN(angle)) {
-				if (airControl)
+			if (airControl && !isGrounded) {
 					rb.AddForce(movementDirection * speed);
 				return;
 			} 
+//
+//			float angle_radians = angle * Mathf.PI / 180;
+//
+//			Vector2 forceDirection = new Vector2(Mathf.Cos(angle_radians), Mathf.Sin(angle_radians));
+//
+//			forceDirection *= movementDirection.x;
 
-			float angle_radians = angle * Mathf.PI / 180;
-
-			Vector2 forceDirection = new Vector2(Mathf.Cos(angle_radians), Mathf.Sin(angle_radians));
-
-			forceDirection *= movementDirection.x;
+			Vector2 forceDirection = (Vector2)transform.right * movementDirection.x;
 
 			rb.AddForce(forceDirection * speed);
-
 		}
 	}
-
-	void MoveAlongFloor(Vector2 inputDirection) {
-		
-	}
-
 }
