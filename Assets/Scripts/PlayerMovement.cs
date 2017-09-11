@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
 
-    public float speed = 20;
+    public float moveForce = 20;
+    public float brakeForce = 50;
+    public Vector2 maxVelocity = new Vector2(50, 50);
     public float jumpPower = 9;
+    public float gravityScale = 1;
     public float velocityThreshold = 1;
     public float maxSlope = 46;
     public bool airControl = true;
@@ -25,8 +28,6 @@ public class PlayerMovement : MonoBehaviour {
 
     [SerializeField]
     bool isGrounded = false;
-   
-    
 
     [SerializeField]
     float angle = 0;
@@ -52,6 +53,8 @@ public class PlayerMovement : MonoBehaviour {
 
         if (groundCheck == null)
             Debug.LogError("No Ground Check transform set.");
+
+        rb.gravityScale = gravityScale;
     }
 
     void Update () {
@@ -59,12 +62,13 @@ public class PlayerMovement : MonoBehaviour {
         movementDirection = (new Vector2(horizontalInput, movementDirection.y)).normalized;
 
         RaycastHit2D hit = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
-        Debug.DrawLine (transform.position, groundCheck.position, Color.cyan);
-
-        Debug.Log("transform.positon: " + transform.position + "   groundCheck.position: " + groundCheck.position);
+        Debug.DrawLine(transform.position, groundCheck.position, Color.blue);
 
         bool wasGrounded = isGrounded;
         isGrounded = (bool)hit;
+//
+//        if (!isGrounded)
+//            UnityEditor.EditorApplication.isPaused = true;
 
         if (jumpingOffGround && !isGrounded)
             jumpingOffGround = false;
@@ -74,7 +78,7 @@ public class PlayerMovement : MonoBehaviour {
             angle = Vector2.SignedAngle(Vector2.up, hit.normal);
 
             if (midairSpin && !rigidbodyRotation)
-                transform.localRotation = Quaternion.LookRotation(transform.forward, hit.normal);
+                transform.rotation = Quaternion.LookRotation(transform.forward, hit.normal);
         }
         else if (uprightInAir){
             angle = 0;
@@ -89,15 +93,20 @@ public class PlayerMovement : MonoBehaviour {
         if (Input.GetButtonDown("Jump") && isGrounded && !jumpPressed)
             jumpPressed = true;
 
-        if (!midairSpin && !rigidbodyRotation)
-            transform.localRotation = Quaternion.LookRotation(transform.forward, jumpDirection);
+        if (!midairSpin && !rigidbodyRotation) {
+            transform.rotation = Quaternion.LookRotation(transform.forward, jumpDirection);
+        }
+
+        Debug.DrawLine(transform.position, groundCheck.position, Color.cyan);
+
+//        transform.position += new Vector3(Time.deltaTime, 0, 0);
     }
 
     void FixedUpdate() {
-
         if (rigidbodyRotation) {
             if (!midairSpin || (midairSpin && isGrounded))
                 rb.MoveRotation (angle);
+//                rb.rotation = angle;
         }
         if (Mathf.Abs(angle) <= maxSlope 
                 && Mathf.Abs(rb.velocity.magnitude) <= velocityThreshold 
@@ -108,16 +117,32 @@ public class PlayerMovement : MonoBehaviour {
             rb.velocity = Vector2.zero;
             rb.gravityScale = 0;
         } 
-
-
-//        else {
-            rb.gravityScale = 1;
+            
+        else {
+            rb.gravityScale = gravityScale;
             Move(movementDirection);
             if (jumpPressed) {
                 Jump();
             }
-//        }
+            CheckMaxVelocity();
+        }
             
+    }
+
+    void CheckMaxVelocity() {
+        Vector2 velocity = rb.velocity;
+        if (Mathf.Abs(velocity.x) >= maxVelocity.x) {
+//            Debug.Log("Limiting velocity.x (" + velocity.x + ") to maxVelocity.x (" + maxVelocity.x + ")");
+            velocity.x = Mathf.Sign(velocity.x) * maxVelocity.x;
+        }
+        if (Mathf.Abs(velocity.y) >= maxVelocity.y) {
+//            Debug.Log("Limiting velocity.y (" + velocity.y + ") to maxVelocity.y (" + maxVelocity.y + ")");
+            velocity.y = Mathf.Sign(velocity.y) * maxVelocity.y;
+        }
+
+//        Debug.Log(maxVelocity);
+        rb.velocity = velocity;
+        Debug.Log(rb.velocity);
     }
 
     void Jump() {
@@ -129,9 +154,9 @@ public class PlayerMovement : MonoBehaviour {
 
     void Move(Vector2 direction) {
         if (moveType == movementType.Force)
-            rb.AddForce(movementDirection * speed);
+            rb.AddForce(movementDirection * moveForce);
         else if (moveType == movementType.TorqueCenter)
-            rb.AddTorque(-movementDirection.x * speed);
+            rb.AddTorque(-movementDirection.x * moveForce);
         else if (moveType == movementType.TorqueEdge) {
             Vector2 relativeRotationPoint = movementDirection.x * pointToRotateAround;
             Vector2 rotationPoint = (Vector2)transform.position + relativeRotationPoint;
@@ -139,20 +164,25 @@ public class PlayerMovement : MonoBehaviour {
         } 
         else if (moveType == movementType.ForceAtAngle) {
 
+            Vector2 forceDirection;
             if (airControl && !isGrounded) {
-                    rb.AddForce(movementDirection * speed);
-                return;
-            } 
-//
-//            float angle_radians = angle * Mathf.PI / 180;
-//
-//            Vector2 forceDirection = new Vector2(Mathf.Cos(angle_radians), Mathf.Sin(angle_radians));
-//
-//            forceDirection *= movementDirection.x;
+                forceDirection = movementDirection;
+            }
+            else {
+                forceDirection = (Vector2)transform.right * movementDirection.x;
+            }
 
-            Vector2 forceDirection = (Vector2)transform.right * movementDirection.x;
+            Vector2 force;
+            if (isGrounded && ((rb.velocity.x > 0 && forceDirection.x < 0) || (rb.velocity.x < 0 && forceDirection.x > 0))) {
+                force = forceDirection * brakeForce;
+//                Debug.Log("Decellerating");
+            }
+            else {
+                force = forceDirection * moveForce;
+//                Debug.Log("Accelerating");
+            }
 
-            rb.AddForce(forceDirection * speed);
+            rb.AddForce(force);
         }
     }
 }
