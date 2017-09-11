@@ -23,6 +23,8 @@ public class PlayerMovement : MonoBehaviour {
     public Vector2 pointToRotateAround = new Vector2(0, 0);
 
     public Transform groundCheck;
+    public Transform groundCheckLeft;
+    public Transform groundCheckRight;
 
     public LayerMask groundLayer;
 
@@ -54,6 +56,12 @@ public class PlayerMovement : MonoBehaviour {
         if (groundCheck == null)
             Debug.LogError("No Ground Check transform set.");
 
+        if (groundCheckLeft == null)
+            Debug.LogError("No Ground Check Left transform set.");
+
+        if (groundCheckRight == null)
+            Debug.LogError("No Ground Check Right transform set.");
+
         rb.gravityScale = gravityScale;
     }
 
@@ -61,12 +69,30 @@ public class PlayerMovement : MonoBehaviour {
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         movementDirection = (new Vector2(horizontalInput, movementDirection.y)).normalized;
 
-        RaycastHit2D hit = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
+        RaycastHit2D hitCenter = Physics2D.Linecast(transform.position, groundCheck.position, groundLayer);
         Debug.DrawLine(transform.position, groundCheck.position, Color.blue);
 
+        RaycastHit2D hitLeft = Physics2D.Linecast(transform.position - transform.right * 0.5f, groundCheckLeft.position, groundLayer);
+        Debug.DrawLine(transform.position - transform.right *  0.5f, groundCheckLeft.position, Color.blue);
+
+        RaycastHit2D hitRight = Physics2D.Linecast(transform.position + transform.right * 0.5f, groundCheckRight.position, groundLayer);
+        Debug.DrawLine(transform.position + transform.right * 0.5f, groundCheckRight.position, Color.blue);
+
         bool wasGrounded = isGrounded;
-        isGrounded = (bool)hit;
+
+//        RaycastHit2D hit = hitLeft;
+//        if (!hit) {
+//            hit = hitRight;
 //
+//            if (!hit)
+//                hit = hitCenter;
+//        }
+
+        RaycastHit2D hit = hitCenter;
+
+        isGrounded = (bool)hit;
+
+
 //        if (!isGrounded)
 //            UnityEditor.EditorApplication.isPaused = true;
 
@@ -139,8 +165,6 @@ public class PlayerMovement : MonoBehaviour {
 //            Debug.Log("Limiting velocity.y (" + velocity.y + ") to maxVelocity.y (" + maxVelocity.y + ")");
             velocity.y = Mathf.Sign(velocity.y) * maxVelocity.y;
         }
-
-//        Debug.Log(maxVelocity);
         rb.velocity = velocity;
         Debug.Log(rb.velocity);
     }
