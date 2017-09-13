@@ -125,25 +125,32 @@ public class PlayerMovement : MonoBehaviour {
 
         Debug.DrawLine(transform.position, groundCheck.position, Color.cyan);
 
-//        transform.position += new Vector3(Time.deltaTime, 0, 0);
+        customFixedUpdate();
+    }
+
+    void customFixedUpdate() {
     }
 
     void FixedUpdate() {
+        PhysicsUpdate();
+    }
+
+    void PhysicsUpdate() {
         if (rigidbodyRotation) {
             if (!midairSpin || (midairSpin && isGrounded))
                 rb.MoveRotation (angle);
-//                rb.rotation = angle;
+            //                rb.rotation = angle;
         }
         if (Mathf.Abs(angle) <= maxSlope 
-                && Mathf.Abs(rb.velocity.magnitude) <= velocityThreshold 
-                && movementDirection == Vector2.zero 
-                && !jumpPressed 
-                && !jumpingOffGround 
-                && isGrounded) {
+            && Mathf.Abs(rb.velocity.magnitude) <= velocityThreshold 
+            && movementDirection == Vector2.zero 
+            && !jumpPressed 
+            && !jumpingOffGround 
+            && isGrounded) {
             rb.velocity = Vector2.zero;
             rb.gravityScale = 0;
         } 
-            
+
         else {
             rb.gravityScale = gravityScale;
             Move(movementDirection);
@@ -152,7 +159,6 @@ public class PlayerMovement : MonoBehaviour {
             }
             CheckMaxVelocity();
         }
-            
     }
 
     void CheckMaxVelocity() {
