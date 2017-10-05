@@ -11,11 +11,14 @@ public class KinematicPlayer : MonoBehaviour {
     public float friction = 5f;
     public float maxHorizontalSpeed = 15f;
     public float maxVerticalSpeed = 15f;
+    public float checkGroundRayDistance = 0.2f;
 
     public bool colliding = false;
 
     public float halfWidth = 0.5f;
-    public float skinWidth = 0.01f;
+    public float skinWidth = 0.5f;
+    public float margin = 0.01f;
+    public int rayCount = 3;
 
 //    public Transform groundCheck;
 
@@ -81,7 +84,7 @@ public class KinematicPlayer : MonoBehaviour {
         if (playerGravity) {
             playerGravity.ApplyGravity(ref velocity);
 
-            if (jumpInput) {
+            if (jumpInput && velocity.y <= 0) {
                 playerGravity.Jump(ref velocity);
                 jumpPerformed = true;
             }
@@ -149,109 +152,59 @@ public class KinematicPlayer : MonoBehaviour {
             velocity.y = Mathf.Sign(velocity.y) * maxVerticalSpeed;
     }
 
+    Vector2 CheckDirection(Vector2 direction, Color color) {
+        direction.Normalize();
+
+        Vector2 collisionPositionOffset = Vector2.zero;
+        for (int i = 0; i < rayCount; i++) {
+            Vector2 raycastOrigin = rb.position + (halfWidth - skinWidth) * direction;
+
+            Vector2 perpendicularDirection = (Vector2)Vector3.Cross(Vector3.forward, direction);
+
+            if (rayCount != 1) {
+                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * perpendicularDirection;
+                raycastOrigin += originOffset;
+            }
+
+            float raycastLength = skinWidth - margin;
+            float velocityComponent = Vector2.Dot(velocity, direction);
+
+            if (velocityComponent > 0) {
+                raycastLength = skinWidth + velocityComponent * Time.deltaTime;
+            }
+
+            int layerMask = LayerMask.GetMask("Tile");
+
+            RaycastHit2D hit = Physics2D.Raycast(raycastOrigin, direction, raycastLength, layerMask);
+            Debug.DrawRay(raycastOrigin, direction * raycastLength, color);
+
+
+            if (hit) {
+                velocity -= velocityComponent * direction;
+                collisionPositionOffset = (hit.distance - skinWidth) * direction;
+            }
+        }
+
+        return collisionPositionOffset;
+
+    }
+
     void CheckCollision() {
-        Vector2 raycastOriginRight = rb.position + (halfWidth - skinWidth) * (Vector2)transform.right;
-        Vector2 raycastOriginUp = rb.position + (halfWidth - skinWidth) * (Vector2)transform.up;
-        Vector2 raycastOriginLeft = rb.position + (halfWidth - skinWidth) * -(Vector2)transform.right;
-        Vector2 raycastOriginDown = rb.position + (halfWidth - skinWidth) * -(Vector2)transform.up;
+        Vector2 collisionPositionOffset = Vector2.zero;
+        collisionPositionOffset += CheckDirection(transform.right, Color.blue);
+        collisionPositionOffset += CheckDirection(-transform.right, Color.yellow);
+        collisionPositionOffset += CheckDirection(transform.up, Color.white);
+        collisionPositionOffset += CheckDirection(-transform.up, Color.magenta);
 
-        float raycastLengthRight = 0;
-        if (velocity.x > 0) {
-            raycastLengthRight = skinWidth + velocity.x * Time.deltaTime;
-        }
-
-        float raycastLengthUp = 0;
-        if (velocity.y > 0) {
-            raycastLengthUp = skinWidth + velocity.y * Time.deltaTime;
-        }
-
-        float raycastLengthLeft = 0;
-        if (velocity.x < 0) {
-            raycastLengthLeft = skinWidth + Mathf.Abs(velocity.x) * Time.deltaTime;
-        }
-
-        float raycastLengthDown = 0;
-        if (velocity.y < 0) {
-            raycastLengthDown = skinWidth + Mathf.Abs(velocity.y) * Time.deltaTime;
-            Debug.Log("raycastLengthDown: " + raycastLengthDown);
-        }
-
-        int layerMask = LayerMask.GetMask("Tile");
-
-        RaycastHit2D hitRight = Physics2D.Raycast(raycastOriginRight, transform.right, raycastLengthRight, layerMask);
-        Debug.DrawRay(raycastOriginRight, transform.right * raycastLengthRight, Color.cyan);
-
-        RaycastHit2D hitUp = Physics2D.Raycast(raycastOriginUp, transform.up, raycastLengthUp, layerMask);
-        Debug.DrawRay(raycastOriginUp, transform.up * raycastLengthUp, Color.cyan);
-
-        RaycastHit2D hitLeft = Physics2D.Raycast(raycastOriginLeft, -transform.right, raycastLengthLeft, layerMask);
-        Debug.DrawRay(raycastOriginLeft, -transform.right * raycastLengthLeft, Color.cyan);
-
-        RaycastHit2D hitDown = Physics2D.Raycast(raycastOriginDown, -transform.up, raycastLengthDown, layerMask);
-        Debug.DrawRay(raycastOriginDown, -transform.up * raycastLengthDown, Color.cyan);
-
-        // only right working correctly for sure
-        // left is glitched?
-
-        if (hitRight) {
-            Debug.Log("Hit on right side: " + hitRight.distance);
-            velocity.x = 0;
-
-            Vector2 newPosition = rb.position + velocity*Time.fixedDeltaTime + (hitRight.distance - skinWidth) * (Vector2)transform.right;
-
+        if (collisionPositionOffset.magnitude > 0) {
+            Vector2 newPosition = rb.position + velocity * Time.fixedDeltaTime + collisionPositionOffset;
             rb.MovePosition(newPosition);
         }
+    }
 
-        if (hitUp) {
-            Debug.Log("Hit on up side: " + hitUp.distance);
-            velocity.y = 0;
-            Vector2 newPosition = rb.position + velocity*Time.fixedDeltaTime + (hitUp.distance - skinWidth) * (Vector2)transform.up;
+    void CheckGround() {
+        Vector2 checkGroundRayOrigin = rb.position;
 
-            rb.MovePosition(newPosition);
-        }
-
-        if (hitLeft) {
-            Debug.Log("Hit on left side: " + hitLeft.distance);
-            velocity.x = 0;
-            Vector2 newPosition = rb.position + velocity*Time.fixedDeltaTime + (hitLeft.distance - skinWidth) * -(Vector2)transform.right;
-
-            rb.MovePosition(newPosition);
-        }
-        if (hitDown) {
-            Debug.Log("Hit on down side: " + hitDown.distance);
-            velocity.y = 0;
-            Vector2 newPosition = rb.position + velocity*Time.fixedDeltaTime + (hitDown.distance - skinWidth) * -(Vector2)transform.up;
-
-            rb.MovePosition(newPosition);
-        }
-
-//        bool hit = (hitRight || hitUp || hitLeft || hitDown);
-//        if (hit) {
-//            Vector2 newPosition = rb.position + velocity * Time.fixedDeltaTime;
-//            if (hitRight) {
-//                Debug.Log("Hit on right side: " + hitRight.distance);
-//                velocity.x = 0;
-//                newPosition += (hitRight.distance - skinWidth) * (Vector2)transform.right;
-//            }
-//
-//            if (hitUp) {
-//                Debug.Log("Hit on up side: " + hitUp.distance);
-//                velocity.y = 0;
-//                newPosition += (hitUp.distance - skinWidth) * (Vector2)transform.up;
-//            }
-//
-//            if (hitLeft) {
-//                Debug.Log("Hit on left side: " + hitLeft.distance);
-//                velocity.x = 0;
-//                newPosition += (hitLeft.distance - skinWidth) * -(Vector2)transform.right;
-//            }
-//            if (hitDown) {
-//                Debug.Log("Hit on down side: " + hitDown.distance);
-//                velocity.y = 0;
-//                newPosition += (hitDown.distance - skinWidth) * -(Vector2)transform.up;
-//            }
-//            rb.MovePosition(newPosition);
-//        }
     }
 
     void UpdateInput() {
