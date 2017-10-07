@@ -12,6 +12,7 @@ public class KinematicPlayer : MonoBehaviour {
 
     public float airAcceleration = 20f;
     public float airDrag = 0.96875f;
+    public float airDragHorizontalSpeedThreshold = 0.625f;
     public float airDragFallSpeedThreshold = 20f;
 
     public float maxHorizontalSpeed = 30f;
@@ -102,7 +103,7 @@ public class KinematicPlayer : MonoBehaviour {
         if (Mathf.Abs(velocity.y) >= maxVerticalSpeed)
             velocity.y = Mathf.Sign(velocity.y) * maxVerticalSpeed;
 
-        if (!isGrounded && velocity.y < 0 && velocity.y > airDragFallSpeedThreshold) {
+        if (!isGrounded && velocity.y < 0 && velocity.y > -airDragFallSpeedThreshold && Mathf.Abs(velocity.x) >= airDragHorizontalSpeedThreshold) {
             velocity.y *= airDrag;
         }
     }
