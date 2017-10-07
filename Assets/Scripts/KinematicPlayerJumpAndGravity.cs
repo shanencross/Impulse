@@ -31,7 +31,13 @@ public class KinematicPlayerJumpAndGravity : MonoBehaviour
     }
 
     public void Jump(ref Vector2 velocity) {
-        velocity.y = jumpSpeed;
+        Vector2 direction = (Vector2)transform.up;
+       
+        float velocityComponent = Vector2.Dot(velocity, direction);
+
+        velocity -= velocityComponent * direction;
+        velocity += jumpSpeed * direction;
+        Debug.Log(velocity.x);
     }
     
 }
