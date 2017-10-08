@@ -13,7 +13,7 @@ public class KinematicPlayer : MonoBehaviour {
     public float airAcceleration = 20f;
     public float airDrag = 0.96875f;
     public float airDragHorizontalSpeedThreshold = 0.625f;
-    public float airDragFallSpeedThreshold = 20f;
+    public float airDragFallSpeedThreshold = 7.5f;
 
     public float maxHorizontalSpeed = 30f;
     public float maxVerticalSpeed = 30f;
