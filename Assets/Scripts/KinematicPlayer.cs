@@ -268,17 +268,13 @@ public class KinematicPlayer : MonoBehaviour {
         Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
 
         Vector2 direction = velocity.normalized;
-//
-//        Vector2 bottomSide = position + (direction - (Vector2)(Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.up)) * (halfWidth - margin);
+
         Vector2 slopeRayOrigin = position - (halfWidth - margin) * playerUp;
         Vector2 travelDistance = velocity * Time.deltaTime;
         RaycastHit2D slopeHit = Physics2D.Raycast(slopeRayOrigin, direction, travelDistance.magnitude, layerMask); 
         Debug.DrawRay(slopeRayOrigin, travelDistance, Color.cyan);
 
         if (slopeHit && isGrounded) {
-//            collisionPositionOffset = (slopeHit.distance) * direction;
-//            groundSpeed = 0;
-           
             Debug.DrawRay(slopeHit.point, slopeHit.normal * 10, Color.blue);
 
 
@@ -289,36 +285,24 @@ public class KinematicPlayer : MonoBehaviour {
             angle = Vector2.SignedAngle(-Vector2.up, -slopeHit.normal);
             float angleDifference = Mathf.Abs(angle - oldAngle);
  
-            if (angleDifference >= 90 - 0.001f) {
-//                Debug.Log("nearly 90 degree collision");
-////                UnityEditor.EditorApplication.isPaused = true;
-//                angle = oldAngle;
-//                collisionPositionOffset = Vector2.zero;
-//                RaycastHit2D extraHit = Physics2D.Raycast(slopeRayOrigin, -playerUp, 0.5f);
-//                Debug.DrawRay(extraHit.point, extraHit.normal * 10, Color.gray);
-            }
+            if (angleDifference >= 90 - 0.001f && Mathf.Sign(angle) == Mathf.Sign(oldAngle)) {
+                Debug.Log("nearly 90 degree collision");
+                angle = oldAngle;
+                collisionPositionOffset = Vector2.zero;
+            }        
+        }
 
-//            Debug.Log("Slope hit: " + slopeHit.point.ToString("F10"));
-//            Debug.Log("Bottom Center: " + bottomCenter.ToString("F10"));
-//            Debug.Log("Angle: " + angle.ToString("F10"));
-//            Debug.Log("Tan: " + (Mathf.Tan(angle * Mathf.Deg2Rad)).ToString("F10"));
-//            Debug.Log("Relative contact point height: " + (slopeHit.point.y - bottomCenter.y).ToString("F10"));
-//
-//            Vector2 slopeHitLocal = new Vector2(Vector2.Dot(slopeHit.point, playerRight), Vector2.Dot(slopeHit.point, playerUp));
-//            Vector2 bottomCenterLocal = new Vector2(Vector2.Dot(bottomCenter, playerRight), Vector2.Dot(bottomCenter, playerUp));
-//
-//            Vector2 localOffset = new Vector2(slopeHitLocal.x - (slopeHitLocal.y - bottomCenterLocal.y) / Mathf.Tan((angle - oldAngle)*Mathf.Deg2Rad) - bottomCenterLocal.x, 0);
-//
-//            collisionPositionOffset = localOffset.x * playerRight + localOffset.y * playerUp;
+        Vector2 downSlopeRayOrigin = position - (halfWidth + margin) * playerUp + velocity * Time.deltaTime;
+        Vector2 downSlopeRayTravelDistance = -velocity * Time.deltaTime;
+        RaycastHit2D downSlopeRayHit = Physics2D.Raycast(downSlopeRayOrigin, downSlopeRayTravelDistance.normalized, downSlopeRayTravelDistance.magnitude, layerMask);
+        Debug.DrawRay(downSlopeRayOrigin, downSlopeRayTravelDistance, Color.green);
 
-
-//            collisionPositionOffset -= position;
-//            Debug.DrawRay(collisionPositionOffset + bottomCenter, slopeHit.normal * 10, Color.green);
-
-//            velocity = Vector2.zero;
-//            groundSpeed = 0;
-//            velocity = new Vector2(groundSpeed * Mathf.Cos(angle * Mathf.Deg2Rad), groundSpeed * Mathf.Sin(angle * Mathf.Deg2Rad));
+        if (downSlopeRayHit && isGrounded && downSlopeRayHit.distance > 0) {
 //            UnityEditor.EditorApplication.isPaused = true;
+            Debug.DrawRay(downSlopeRayHit.point, downSlopeRayHit.normal * 10, Color.blue);
+            collisionPositionOffset = downSlopeRayHit.point - position + halfWidth * playerUp;
+
+            angle = Vector2.SignedAngle(-Vector2.up, -downSlopeRayHit.normal);
         }
 
         return collisionPositionOffset;
