@@ -113,9 +113,9 @@ public class KinematicPlayer : MonoBehaviour {
 
 
         if (velocity.magnitude * Time.deltaTime < distanceChanged) {
-            Debug.Log("Teleport distance to slope is greater than velocity travel distance");
-            Debug.Log("Velocity times time: " + velocity.magnitude * Time.deltaTime);
-            Debug.Log("Teleport distance: " + distanceChanged);
+//            Debug.Log("Teleport distance to slope is greater than velocity travel distance");
+//            Debug.Log("Velocity times time: " + velocity.magnitude * Time.deltaTime);
+//            Debug.Log("Teleport distance: " + distanceChanged);
 
             distanceChanged = velocity.magnitude * Time.deltaTime;
         }
@@ -274,7 +274,7 @@ public class KinematicPlayer : MonoBehaviour {
         RaycastHit2D slopeHit = Physics2D.Raycast(slopeRayOrigin, direction, travelDistance.magnitude, layerMask); 
         Debug.DrawRay(slopeRayOrigin, travelDistance, Color.cyan);
 
-        if (slopeHit && isGrounded) {
+        if (slopeHit && isGrounded && slopeHit.distance > 0) {
             Debug.DrawRay(slopeHit.point, slopeHit.normal * 10, Color.blue);
 
 
@@ -284,8 +284,20 @@ public class KinematicPlayer : MonoBehaviour {
             float oldAngle = angle;
             angle = Vector2.SignedAngle(-Vector2.up, -slopeHit.normal);
             float angleDifference = Mathf.Abs(angle - oldAngle);
- 
-            if (angleDifference >= 90 - 0.001f && Mathf.Sign(angle) == Mathf.Sign(oldAngle)) {
+            if (angleDifference >= 180 - 0.001f) {
+                angleDifference = Mathf.Abs(angleDifference - 360);
+            }
+
+//            if (angle >= 75 - 0.001f || angle <= 75 + 0.001f) {
+                Debug.Log("Upslope:");
+                Debug.Log("Old angle: " + oldAngle.ToString("F10"));
+                Debug.Log("New angle: " + angle.ToString("F10"));
+                Debug.Log("Original angle difference: " + Mathf.Abs(angle - oldAngle).ToString("F10"));
+                Debug.Log("New angle difference: " + angleDifference.ToString("F10"));
+
+//            }
+
+            if (angleDifference >= 90 - 0.001f) {
                 Debug.Log("nearly 90 degree collision");
                 angle = oldAngle;
                 collisionPositionOffset = Vector2.zero;
@@ -302,7 +314,29 @@ public class KinematicPlayer : MonoBehaviour {
             Debug.DrawRay(downSlopeRayHit.point, downSlopeRayHit.normal * 10, Color.blue);
             collisionPositionOffset = downSlopeRayHit.point - position + halfWidth * playerUp;
 
+            float oldAngle = angle;
             angle = Vector2.SignedAngle(-Vector2.up, -downSlopeRayHit.normal);
+            float angleDifference = Mathf.Abs(angle - oldAngle);
+
+       
+            if (angleDifference >= 180 - 0.001f) {
+                angleDifference = Mathf.Abs(angleDifference - 360);
+            }
+
+//            if (angle >= 75 - 0.001f && angle <= 75 + 0.001f) {
+                Debug.Log("Downslope:");
+                Debug.Log("Old angle: " + oldAngle.ToString("F10"));
+                Debug.Log("New angle: " + angle.ToString("F10"));
+                Debug.Log("Original angle difference: " + Mathf.Abs(angle - oldAngle).ToString("F10"));
+                Debug.Log("New angle difference: " + angleDifference.ToString("F10"));
+
+//            }
+
+            if (angleDifference >= 90 - 0.001f) {
+                Debug.Log("nearly 90 degree collision");
+                angle = oldAngle;
+                collisionPositionOffset = Vector2.zero;
+            }      
         }
 
         return collisionPositionOffset;
