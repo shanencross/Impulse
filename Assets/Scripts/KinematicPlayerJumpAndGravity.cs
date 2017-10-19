@@ -26,21 +26,21 @@ public class KinematicPlayerJumpAndGravity : MonoBehaviour
             
     }
 
-    public void ApplyGravity(ref Vector2 localVelocity) {
+    public void ApplyGravity(ref Vector2 velocity) {
 //        Vector2 localGravity = transform.InverseTransformVector(gravity);
 //        localVelocity += localGravity * Time.deltaTime;
-        localVelocity += gravity * Time.deltaTime;
+        velocity += gravity * Time.deltaTime;
     }
 
-    public void Jump(ref Vector2 localVelocity) {
+    public void Jump(ref Vector2 velocity) {
         Vector2 direction = (Vector2)transform.up;
 
-//        localVelocity += jumpSpeed * Vector2.up;
+//        velocity += jumpSpeed * Vector2.up;
        
-        float velocityComponent = Vector2.Dot(localVelocity, direction);
+        float velocityComponent = Vector2.Dot(velocity, direction);
 
-        localVelocity -= velocityComponent * direction;
-        localVelocity += jumpSpeed * direction;
+        velocity -= velocityComponent * direction;
+        velocity += jumpSpeed * direction;
     }
     
 }
