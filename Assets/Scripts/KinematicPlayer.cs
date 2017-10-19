@@ -291,6 +291,9 @@ public class KinematicPlayer : MonoBehaviour {
 
     Vector2 CheckWall(Vector2 position) {
         Vector2 collisionPositionOffset = Vector2.zero;
+        if (!isGrounded)
+            return collisionPositionOffset;
+        
         int layerMask = LayerMask.GetMask("Tile");
         Vector2 direction = velocity.normalized;
         Vector2 wallRayOrigin = position + (halfWidth - margin) * direction;
@@ -383,9 +386,11 @@ public class KinematicPlayer : MonoBehaviour {
             if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
                 Debug.Log("nearly 90 degree collision: " + angleDifference.ToString("F10"));
                 angle = oldAngle;
-//                angle = 0;
+                angle = 0;
                 collisionPositionOffset = Vector2.zero;
-//                isGrounded = false;
+
+                isGrounded = false;
+                groundSpeed = velocity.x;
             }
             else {
 //                isGrounded = true;
