@@ -40,7 +40,7 @@ public class KinematicPlayer : MonoBehaviour {
     [SerializeField]
     bool jumpPerformed = false;
     [SerializeField]
-    bool isGrounded = true;
+    bool isGrounded = false;
 
     [SerializeField]
     Vector2 velocity;
@@ -84,9 +84,10 @@ public class KinematicPlayer : MonoBehaviour {
         UpdateGroundVelocity();
         SetVelocityFromGroundSpeed();
 
-//        if (!isGrounded) {
-//            playerGravity.ApplyGravity(ref velocity);
-//        }
+        if (!isGrounded) {
+            playerGravity.ApplyGravity(ref velocity);
+            groundSpeed = velocity.x;
+        }
 
         float oldAngle = angle;
         Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
@@ -290,14 +291,17 @@ public class KinematicPlayer : MonoBehaviour {
 //    }
 
     Vector2 CheckWall(Vector2 position) {
+        // DEBUG: Fix this
+        // Doesn't make sense for air collision
         Vector2 collisionPositionOffset = Vector2.zero;
-        if (!isGrounded)
-            return collisionPositionOffset;
-        
         int layerMask = LayerMask.GetMask("Tile");
-        Vector2 direction = velocity.normalized;
+        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+
+
+        Vector2 direction = playerRight * Mathf.Sign(groundSpeed);
         Vector2 wallRayOrigin = position + (halfWidth - margin) * direction;
-        Vector2 wallRayDistance = margin * direction + velocity * Time.deltaTime;
+        Vector2 wallRayDistance = (margin + Mathf.Abs(groundSpeed) * Time.deltaTime) * direction;
 
         RaycastHit2D wallRayHit = Physics2D.Raycast(wallRayOrigin, wallRayDistance.normalized, wallRayDistance.magnitude, layerMask);
         Debug.DrawRay(wallRayOrigin, wallRayDistance, Color.black);
@@ -314,7 +318,7 @@ public class KinematicPlayer : MonoBehaviour {
             Debug.Log("Updated angle difference: " + angleDifference.ToString("F10"));
 
             if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
-                collisionPositionOffset = (wallRayHit.distance - margin) * direction;
+                collisionPositionOffset = (wallRayHit.distance - 2 *margin) * direction;
                 groundSpeed = 0;
             }
         }
@@ -388,7 +392,7 @@ public class KinematicPlayer : MonoBehaviour {
                 angle = oldAngle;
                 angle = 0;
                 collisionPositionOffset = Vector2.zero;
-
+//
                 isGrounded = false;
                 groundSpeed = velocity.x;
             }
