@@ -32,15 +32,17 @@ public class KinematicPlayerJumpAndGravity : MonoBehaviour
         velocity += gravity * Time.deltaTime;
     }
 
-    public void Jump(ref Vector2 velocity) {
-        Vector2 direction = (Vector2)transform.up;
+    public void Jump(ref Vector2 velocity, float angle) {
+        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
 
-//        velocity += jumpSpeed * Vector2.up;
-       
-        float velocityComponent = Vector2.Dot(velocity, direction);
+        Debug.DrawRay(transform.position, playerUp * 10, Color.cyan);
 
-        velocity -= velocityComponent * direction;
-        velocity += jumpSpeed * direction;
+
+        float velocityComponent = Vector2.Dot(velocity, playerUp);
+
+//        velocity -= velocityComponent * playerUp;
+        velocity += jumpSpeed * playerUp;
     }
     
 }

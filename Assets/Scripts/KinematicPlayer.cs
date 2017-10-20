@@ -84,15 +84,25 @@ public class KinematicPlayer : MonoBehaviour {
         UpdateGroundVelocity();
         SetVelocityFromGroundSpeed();
 
-        if (!isGrounded) {
-            playerGravity.ApplyGravity(ref velocity);
-            groundSpeed = velocity.x;
-        }
 
         float oldAngle = angle;
         Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
         Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
         Vector2 oldBottomCenter = position - playerUp * halfWidth;
+
+        if (!isGrounded) {
+            playerGravity.ApplyGravity(ref velocity);
+            groundSpeed = velocity.x;
+        }
+
+        else if (jumpInput) {
+            playerGravity.Jump(ref velocity, angle);
+            groundSpeed = velocity.x;
+            jumpPerformed = true;
+            isGrounded = false;
+            angle = 0;
+        }
+
 
         Vector2 collisionPositionOffset = CheckCollision(position);
         SetVelocityFromGroundSpeed();
@@ -187,23 +197,23 @@ public class KinematicPlayer : MonoBehaviour {
     }
         
         
-    void UpdateVelocityY() {
-        if (playerGravity) {
-            playerGravity.ApplyGravity(ref velocity);
-
-            if (jumpInput && isGrounded) {
-                playerGravity.Jump(ref velocity);
-                jumpPerformed = true;
-            }
-        }
-
-        if (Mathf.Abs(velocity.y) >= maxVerticalSpeed)
-            velocity.y = Mathf.Sign(velocity.y) * maxVerticalSpeed;
-
-//        if (!isGrounded && velocity.y < 0 && velocity.y > -airDragFallSpeedThreshold && Mathf.Abs(velocity.x) >= airDragHorizontalSpeedThreshold) {
-//            velocity.y *= airDrag;
+//    void UpdateVelocityY() {
+//        if (playerGravity) {
+//            playerGravity.ApplyGravity(ref velocity);
+//
+//            if (jumpInput && isGrounded) {
+//                playerGravity.Jump(ref velocity);
+//                jumpPerformed = true;
+//            }
 //        }
-    }
+//
+//        if (Mathf.Abs(velocity.y) >= maxVerticalSpeed)
+//            velocity.y = Mathf.Sign(velocity.y) * maxVerticalSpeed;
+//
+////        if (!isGrounded && velocity.y < 0 && velocity.y > -airDragFallSpeedThreshold && Mathf.Abs(velocity.x) >= airDragHorizontalSpeedThreshold) {
+////            velocity.y *= airDrag;
+////        }
+//    }
         
 
     Vector2 CheckDirection(Vector2 direction, int rayCount, Color color) {
@@ -318,7 +328,7 @@ public class KinematicPlayer : MonoBehaviour {
             Debug.Log("Updated angle difference: " + angleDifference.ToString("F10"));
 
             if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
-                collisionPositionOffset = (wallRayHit.distance - 2 *margin) * direction;
+                collisionPositionOffset = (wallRayHit.distance - margin) * direction;
                 groundSpeed = 0;
             }
         }
@@ -389,7 +399,6 @@ public class KinematicPlayer : MonoBehaviour {
 
             if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
                 Debug.Log("nearly 90 degree collision: " + angleDifference.ToString("F10"));
-                angle = oldAngle;
                 angle = 0;
                 collisionPositionOffset = Vector2.zero;
 //
