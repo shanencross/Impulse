@@ -22,7 +22,8 @@ public class KinematicPlayer : MonoBehaviour {
     public bool colliding = false;
     public float angle = 0;
 
-    public float maxSlopeClimbAngle = 90;
+    public float maxClimbAngle = 45.1f;
+    public float maxDescendAngle = 90f;
 
     public float halfWidth = 0.5f;
     public float skinWidth = 0.5f;
@@ -69,14 +70,6 @@ public class KinematicPlayer : MonoBehaviour {
     }
 
     void FixedUpdate() {
-//        if (!isGrounded) {
-//            angle = 0;
-//            if (playerGravity) {
-//                playerGravity.ApplyGravity();
-//            }
-//        }
-
-
 
          // update velocity variable in case rigidbody velocity has been modified
         Vector2 position = rb.position;
@@ -105,7 +98,7 @@ public class KinematicPlayer : MonoBehaviour {
 
 
         Vector2 collisionPositionOffset = CheckCollision(position);
-        SetVelocityFromGroundSpeed();
+//        SetVelocityFromGroundSpeed();
 
         // teleport to location of slope contact
         position += collisionPositionOffset;
@@ -279,8 +272,11 @@ public class KinematicPlayer : MonoBehaviour {
     Vector2 CheckCollision(Vector2 position) {
         Vector2 collisionPositionOffset = Vector2.zero;
         collisionPositionOffset += CheckWall(position);
+        SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConcaveSlope(position);
+        SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConvexSlope(position);
+        SetVelocityFromGroundSpeed();
 
         return collisionPositionOffset;
     }
@@ -305,13 +301,13 @@ public class KinematicPlayer : MonoBehaviour {
         // Doesn't make sense for air collision
         Vector2 collisionPositionOffset = Vector2.zero;
         int layerMask = LayerMask.GetMask("Tile");
-        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
-        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+//        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+//        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
 
 
-        Vector2 direction = playerRight * Mathf.Sign(groundSpeed);
+        Vector2 direction = velocity.normalized;
         Vector2 wallRayOrigin = position + (halfWidth - margin) * direction;
-        Vector2 wallRayDistance = (margin + Mathf.Abs(groundSpeed) * Time.deltaTime) * direction;
+        Vector2 wallRayDistance = margin*direction + velocity * Time.deltaTime;
 
         RaycastHit2D wallRayHit = Physics2D.Raycast(wallRayOrigin, wallRayDistance.normalized, wallRayDistance.magnitude, layerMask);
         Debug.DrawRay(wallRayOrigin, wallRayDistance, Color.black);
@@ -327,7 +323,7 @@ public class KinematicPlayer : MonoBehaviour {
             }
             Debug.Log("Updated angle difference: " + angleDifference.ToString("F10"));
 
-            if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
+            if (angleDifference >= maxClimbAngle - 0.001f) {
                 collisionPositionOffset = (wallRayHit.distance - margin) * direction;
                 groundSpeed = 0;
             }
@@ -363,7 +359,7 @@ public class KinematicPlayer : MonoBehaviour {
                 angleDifference = Mathf.Abs(angleDifference - 360);
             }
 
-            if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
+            if (angleDifference >= maxClimbAngle - 0.001f) {
                 Debug.Log("nearly 90 degree collision");
                 angle = oldAngle;
                 collisionPositionOffset = Vector2.zero;
@@ -397,7 +393,7 @@ public class KinematicPlayer : MonoBehaviour {
                 angleDifference = Mathf.Abs(angleDifference - 360);
             }
 
-            if (angleDifference >= maxSlopeClimbAngle - 0.001f) {
+            if (angleDifference >= maxDescendAngle - 0.001f) {
                 Debug.Log("nearly 90 degree collision: " + angleDifference.ToString("F10"));
                 angle = 0;
                 collisionPositionOffset = Vector2.zero;
