@@ -104,7 +104,7 @@ public class KinematicPlayer : MonoBehaviour {
         position += collisionPositionOffset;
 
         Vector2 bottomCenter = position - playerUp * halfWidth;
-        Debug.DrawRay(bottomCenter, -transform.up * 5, Color.yellow);
+//        Debug.DrawRay(bottomCenter, -transform.up * 5, Color.yellow);
 
         // apply center position offset due to rotation about bottom center
         Vector2 rotationPositionOffset;
@@ -273,6 +273,8 @@ public class KinematicPlayer : MonoBehaviour {
         Vector2 collisionPositionOffset = Vector2.zero;
         collisionPositionOffset += CheckWall(position);
         SetVelocityFromGroundSpeed();
+        collisionPositionOffset += CheckCeilingAndFloor(position);
+        SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConcaveSlope(position);
         SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConvexSlope(position);
@@ -296,36 +298,108 @@ public class KinematicPlayer : MonoBehaviour {
 //
 //    }
 
+
+    Vector2 CheckCeilingAndFloor(Vector2 position) {
+        Vector2 collisionPositionOffset = Vector2.zero;
+        int layerMask = LayerMask.GetMask("Tile");
+        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+        float velocityUpComponent = Vector2.Dot(velocity, playerUp);
+        Vector2 facingDirection;
+        if (velocityUpComponent - 0.001f > 0) {
+            facingDirection = playerUp;
+        }
+        else
+            return collisionPositionOffset;
+
+        Vector2 direction = velocity.normalized;
+
+
+        int rayCount = 3;
+        for (int i = 0; i < rayCount; i++) {
+            Vector2 verticalRayOrigin = position + (halfWidth - margin) * facingDirection;
+
+            if (rayCount != 1) {
+                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerRight;
+                verticalRayOrigin += originOffset;
+            }
+
+            Vector2 verticalRayDistance = margin * direction + velocity * Time.deltaTime;
+
+            RaycastHit2D verticalRayHit = Physics2D.Raycast(verticalRayOrigin, verticalRayDistance.normalized, verticalRayDistance.magnitude, 
+                                          layerMask);
+            Debug.DrawRay(verticalRayOrigin, verticalRayDistance, Color.blue);
+
+            if (verticalRayHit && verticalRayHit.distance > 0) {
+                Vector2 hitDirection = -verticalRayHit.normal;
+                Debug.DrawRay(verticalRayHit.point, hitDirection * 10, Color.yellow);
+
+                collisionPositionOffset = (verticalRayHit.distance - margin) * direction;
+                Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
+                velocity -= Vector2.Dot(velocity, facingDirection) * facingDirection;
+                groundSpeed = Vector2.Dot(velocity, playerRight);
+
+                break;
+            }
+        }
+
+        return collisionPositionOffset;
+    }
+
     Vector2 CheckWall(Vector2 position) {
         // DEBUG: Fix this
         // Doesn't make sense for air collision
         Vector2 collisionPositionOffset = Vector2.zero;
         int layerMask = LayerMask.GetMask("Tile");
-//        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
-//        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
 
-
+        float velocityRightComponent = Vector2.Dot(velocity, playerRight);
+        Vector2 facingDirection;
+        if (velocityRightComponent > 0)
+            facingDirection = playerRight;
+        else if (velocityRightComponent < 0)
+            facingDirection = -playerRight;
+        else
+            return collisionPositionOffset;
+        
         Vector2 direction = velocity.normalized;
-        Vector2 wallRayOrigin = position + (halfWidth - margin) * direction;
-        Vector2 wallRayDistance = margin*direction + velocity * Time.deltaTime;
 
-        RaycastHit2D wallRayHit = Physics2D.Raycast(wallRayOrigin, wallRayDistance.normalized, wallRayDistance.magnitude, layerMask);
-        Debug.DrawRay(wallRayOrigin, wallRayDistance, Color.black);
+        int rayCount = 1;
+        for (int i = 0; i < rayCount; i++) {
+            Vector2 wallRayOrigin = position + (halfWidth - margin) * facingDirection;
 
-        if (wallRayHit && wallRayHit.distance > 0) {
-            float wallAngle = Vector2.SignedAngle(-Vector2.up, -wallRayHit.normal);
-            Debug.Log("Wall angle: "+ wallAngle.ToString("F10"));
-            float angleDifference = Mathf.Abs(wallAngle - angle);
-
-            Debug.Log("Angle difference: " + angleDifference.ToString("F10"));
-            if (angleDifference >= 180 - 0.001f) {
-                angleDifference = Mathf.Abs(angleDifference - 360);
+            if (rayCount != 1) {
+                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerUp;
+                wallRayOrigin += originOffset;
             }
-            Debug.Log("Updated angle difference: " + angleDifference.ToString("F10"));
 
-            if (angleDifference >= maxClimbAngle - 0.001f) {
-                collisionPositionOffset = (wallRayHit.distance - margin) * direction;
-                groundSpeed = 0;
+            Vector2 wallRayDistance = margin * direction + velocity * Time.deltaTime;
+
+            RaycastHit2D wallRayHit = Physics2D.Raycast(wallRayOrigin, wallRayDistance.normalized, wallRayDistance.magnitude, layerMask);
+            Debug.DrawRay(wallRayOrigin, wallRayDistance, Color.green);
+
+            if (wallRayHit && wallRayHit.distance > 0) {
+                Vector2 hitDirection = -wallRayHit.normal;
+                float wallAngle = Vector2.SignedAngle(-Vector2.up, hitDirection);
+                Debug.Log("Wall angle: " + wallAngle.ToString("F10"));
+                Debug.DrawRay(wallRayHit.point, hitDirection * 10, Color.yellow);
+                float angleDifference = Mathf.Abs(wallAngle - angle);
+
+                Debug.Log("Angle difference: " + angleDifference.ToString("F10"));
+                if (angleDifference >= 180 - 0.001f) {
+                    angleDifference = Mathf.Abs(angleDifference - 360);
+                }
+                Debug.Log("Updated angle difference: " + angleDifference.ToString("F10"));
+
+                if (angleDifference >= maxClimbAngle - 0.001f) {
+                    collisionPositionOffset = (wallRayHit.distance - margin) * direction;
+                    Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
+                    velocity -= Vector2.Dot(velocity, facingDirection) * facingDirection;
+                    groundSpeed = Vector2.Dot(velocity, playerRight);
+
+                    break;
+                }
             }
         }
 

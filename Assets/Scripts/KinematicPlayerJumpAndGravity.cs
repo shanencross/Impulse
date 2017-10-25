@@ -36,8 +36,6 @@ public class KinematicPlayerJumpAndGravity : MonoBehaviour
         Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
         Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
 
-        Debug.DrawRay(transform.position, playerUp * 10, Color.cyan);
-
 
         float velocityComponent = Vector2.Dot(velocity, playerUp);
 
