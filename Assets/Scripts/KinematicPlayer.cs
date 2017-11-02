@@ -286,6 +286,8 @@ public class KinematicPlayer : MonoBehaviour {
         Vector2 collisionPositionOffset = Vector2.zero;
         collisionPositionOffset += CheckWall(position);
         SetVelocityFromGroundSpeed();
+        collisionPositionOffset += CheckCeilingAndFloor(position + collisionPositionOffset);
+        SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConcaveSlope(position + collisionPositionOffset);
         SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConvexSlope(position + collisionPositionOffset);
@@ -311,56 +313,53 @@ public class KinematicPlayer : MonoBehaviour {
 //    }
 
 
-//    Vector2 CheckCeilingAndFloor(Vector2 position) {
-//        Vector2 collisionPositionOffset = Vector2.zero;
-//        int layerMask = LayerMask.GetMask("Tile");
-//        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
-//        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
-//        float velocityUpComponent = Vector2.Dot(velocity, playerUp);
-//        Vector2 facingDirection;
-//        if (velocityUpComponent - 0.001f > 0) {
-//            facingDirection = playerUp;
-//        }
-//        else
-//            return collisionPositionOffset;
-//
-//        Vector2 direction = velocity.normalized;
-//
-//
-//        int rayCount = 3;
-//        for (int i = 0; i < rayCount; i++) {
-//            Vector2 verticalRayOrigin = position + (halfWidth - margin) * facingDirection;
-//
-//            if (rayCount != 1) {
-//                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerRight;
-//                verticalRayOrigin += originOffset;
-//            }
-//
-//            Vector2 verticalRayDistance = margin * direction + velocity * Time.deltaTime;
-//
-//            RaycastHit2D verticalRayHit = Physics2D.Raycast(verticalRayOrigin, verticalRayDistance.normalized, verticalRayDistance.magnitude, 
-//                                          layerMask);
-//            Debug.DrawRay(verticalRayOrigin, verticalRayDistance, Color.blue);
-//
-//            if (verticalRayHit && verticalRayHit.distance > 0) {
-//                Vector2 hitDirection = -verticalRayHit.normal;
-//                Debug.DrawRay(verticalRayHit.point, hitDirection * 10, Color.yellow);
-//
-//                collisionPositionOffset = (verticalRayHit.distance - margin) * direction;
-//                Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
-//                velocity -= Vector2.Dot(velocity, facingDirection) * facingDirection;
-//                groundSpeed = Vector2.Dot(velocity, playerRight);
-//
-//                break;
-//            }
-//        }
-//
-//        return collisionPositionOffset;
-//    }
+    Vector2 CheckCeilingAndFloor(Vector2 position) {
+        Vector2 collisionPositionOffset = Vector2.zero;
+        int layerMask = LayerMask.GetMask("Tile");
+        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+
+        Vector2 facingDirection = playerUp;
+
+        Vector2 direction = velocity.normalized;
+
+
+        int rayCount = 3;
+        for (int i = 0; i < rayCount; i++) {
+            Vector2 verticalRayOrigin = position + halfWidth * facingDirection - margin * direction;
+
+            if (rayCount != 1) {
+                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerRight;
+                verticalRayOrigin += originOffset;
+            }
+
+            Vector2 verticalRayDistance = margin * direction + velocity * Time.deltaTime;
+
+            RaycastHit2D verticalRayHit = Physics2D.Raycast(verticalRayOrigin, verticalRayDistance.normalized, verticalRayDistance.magnitude, 
+                                          layerMask);
+            Debug.DrawRay(verticalRayOrigin, verticalRayDistance, Color.blue);
+
+            if (verticalRayHit && verticalRayHit.distance > 0) {
+                Vector2 hitDirection = -verticalRayHit.normal;
+                Debug.DrawRay(verticalRayHit.point, hitDirection * 10, Color.yellow);
+
+                collisionPositionOffset = (verticalRayHit.distance - margin) * direction;
+                Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
+                float storedVelocity = Vector2.Dot(velocity, playerUp);
+                Vector2 perpendicularHitDirection = (Vector2)Vector3.Cross(Vector3.forward, hitDirection);
+
+                velocity = storedVelocity * perpendicularHitDirection;
+                groundSpeed = Vector2.Dot(velocity, playerRight);
+
+
+                break;
+            }
+        }
+
+        return collisionPositionOffset;
+    }
 
     Vector2 CheckWall(Vector2 position) {
-        // DEBUG: Fix this
-        // Doesn't make sense for air collision
         Vector2 collisionPositionOffset = Vector2.zero;
         int layerMask = LayerMask.GetMask("Tile");
         Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
@@ -373,8 +372,6 @@ public class KinematicPlayer : MonoBehaviour {
             Vector2 facingDirection = facingDirections[index];
 
             Vector2 direction = velocity.normalized;
-    //        Vector2 wallRayOrigin = position;
-    //        Vector2 wallRayDistance = halfWidth * direction + velocity;
 
             int rayCount = 1;
             for (int i = 0; i < rayCount; i++) {
@@ -442,7 +439,6 @@ public class KinematicPlayer : MonoBehaviour {
 
         if (slopeHit && slopeHit.distance > 0) {
 //            UnityEditor.EditorApplication.isPaused = true;
-//            isGrounded = true;
             Debug.DrawRay(slopeHit.point, slopeHit.normal * 10, Color.blue);
 
             collisionPositionOffset = slopeHit.point - position + halfWidth * playerUp;
@@ -508,9 +504,6 @@ public class KinematicPlayer : MonoBehaviour {
                 isGrounded = false;
                 groundSpeed = velocity.x;
             }
-        }
-        else if (downSlopeRayHit && downSlopeRayHit.distance == 0) {
-//            isGrounded = true;
         }
 
         Debug.Log("Collision Position Offset from Convex Slope: " + collisionPositionOffset.ToString("F10"));
