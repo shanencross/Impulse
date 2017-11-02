@@ -110,7 +110,7 @@ public class KinematicPlayer : MonoBehaviour {
         position += collisionPositionOffset;
 
         Debug.Log("Collision Position Offset: " + collisionPositionOffset.ToString("F10"));
-
+        Debug.Log("Velocity * deltaTime: " + (velocity * Time.deltaTime).ToString("F10"));
 
 
         Vector2 bottomCenter = position - playerUp * halfWidth;
@@ -141,18 +141,20 @@ public class KinematicPlayer : MonoBehaviour {
 
             distanceChanged = velocity.magnitude * Time.deltaTime;
         }
+//        float distanceChanged = 0;
 
 
         position += velocity * Time.deltaTime - distanceChanged * velocity.normalized;
-
 
         rb.MoveRotation(angle);
         rb.MovePosition(position);
     }
 
     void SetVelocityFromGroundSpeed() {
-        if (isGrounded)
+        if (isGrounded && wasGrounded)
             velocity = new Vector2(groundSpeed * Mathf.Cos(angle * Mathf.Deg2Rad), groundSpeed * Mathf.Sin(angle * Mathf.Deg2Rad));
+        else if (isGrounded && !wasGrounded)
+            velocity = Vector2.zero;
         else
             velocity = new Vector2(groundSpeed, velocity.y);
     }
@@ -284,12 +286,11 @@ public class KinematicPlayer : MonoBehaviour {
         Vector2 collisionPositionOffset = Vector2.zero;
         collisionPositionOffset += CheckWall(position);
         SetVelocityFromGroundSpeed();
-//        collisionPositionOffset += CheckCeilingAndFloor(position);
-//        SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConcaveSlope(position);
         SetVelocityFromGroundSpeed();
         collisionPositionOffset += CheckConvexSlope(position);
         SetVelocityFromGroundSpeed();
+
 
         return collisionPositionOffset;
     }
@@ -310,52 +311,52 @@ public class KinematicPlayer : MonoBehaviour {
 //    }
 
 
-    Vector2 CheckCeilingAndFloor(Vector2 position) {
-        Vector2 collisionPositionOffset = Vector2.zero;
-        int layerMask = LayerMask.GetMask("Tile");
-        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
-        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
-        float velocityUpComponent = Vector2.Dot(velocity, playerUp);
-        Vector2 facingDirection;
-        if (velocityUpComponent - 0.001f > 0) {
-            facingDirection = playerUp;
-        }
-        else
-            return collisionPositionOffset;
-
-        Vector2 direction = velocity.normalized;
-
-
-        int rayCount = 3;
-        for (int i = 0; i < rayCount; i++) {
-            Vector2 verticalRayOrigin = position + (halfWidth - margin) * facingDirection;
-
-            if (rayCount != 1) {
-                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerRight;
-                verticalRayOrigin += originOffset;
-            }
-
-            Vector2 verticalRayDistance = margin * direction + velocity * Time.deltaTime;
-
-            RaycastHit2D verticalRayHit = Physics2D.Raycast(verticalRayOrigin, verticalRayDistance.normalized, verticalRayDistance.magnitude, 
-                                          layerMask);
-            Debug.DrawRay(verticalRayOrigin, verticalRayDistance, Color.blue);
-
-            if (verticalRayHit && verticalRayHit.distance > 0) {
-                Vector2 hitDirection = -verticalRayHit.normal;
-                Debug.DrawRay(verticalRayHit.point, hitDirection * 10, Color.yellow);
-
-                collisionPositionOffset = (verticalRayHit.distance - margin) * direction;
-                Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
-                velocity -= Vector2.Dot(velocity, facingDirection) * facingDirection;
-                groundSpeed = Vector2.Dot(velocity, playerRight);
-
-                break;
-            }
-        }
-
-        return collisionPositionOffset;
-    }
+//    Vector2 CheckCeilingAndFloor(Vector2 position) {
+//        Vector2 collisionPositionOffset = Vector2.zero;
+//        int layerMask = LayerMask.GetMask("Tile");
+//        Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+//        Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+//        float velocityUpComponent = Vector2.Dot(velocity, playerUp);
+//        Vector2 facingDirection;
+//        if (velocityUpComponent - 0.001f > 0) {
+//            facingDirection = playerUp;
+//        }
+//        else
+//            return collisionPositionOffset;
+//
+//        Vector2 direction = velocity.normalized;
+//
+//
+//        int rayCount = 3;
+//        for (int i = 0; i < rayCount; i++) {
+//            Vector2 verticalRayOrigin = position + (halfWidth - margin) * facingDirection;
+//
+//            if (rayCount != 1) {
+//                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerRight;
+//                verticalRayOrigin += originOffset;
+//            }
+//
+//            Vector2 verticalRayDistance = margin * direction + velocity * Time.deltaTime;
+//
+//            RaycastHit2D verticalRayHit = Physics2D.Raycast(verticalRayOrigin, verticalRayDistance.normalized, verticalRayDistance.magnitude, 
+//                                          layerMask);
+//            Debug.DrawRay(verticalRayOrigin, verticalRayDistance, Color.blue);
+//
+//            if (verticalRayHit && verticalRayHit.distance > 0) {
+//                Vector2 hitDirection = -verticalRayHit.normal;
+//                Debug.DrawRay(verticalRayHit.point, hitDirection * 10, Color.yellow);
+//
+//                collisionPositionOffset = (verticalRayHit.distance - margin) * direction;
+//                Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
+//                velocity -= Vector2.Dot(velocity, facingDirection) * facingDirection;
+//                groundSpeed = Vector2.Dot(velocity, playerRight);
+//
+//                break;
+//            }
+//        }
+//
+//        return collisionPositionOffset;
+//    }
 
     Vector2 CheckWall(Vector2 position) {
         // DEBUG: Fix this
@@ -383,7 +384,7 @@ public class KinematicPlayer : MonoBehaviour {
             Vector2 wallRayOrigin = position + halfWidth * facingDirection - margin * direction;
 
             if (rayCount != 1) {
-                Vector2 originOffset = Mathf.Lerp(halfWidth, -(halfWidth), (float)i / ((float)rayCount - 1)) * playerUp;
+                Vector2 originOffset = Mathf.Lerp(halfWidth - margin, -(halfWidth - margin), (float)i / ((float)rayCount - 1)) * playerUp;
                 wallRayOrigin += originOffset;
             }
 
@@ -462,8 +463,20 @@ public class KinematicPlayer : MonoBehaviour {
                 Debug.Log("nearly 90 degree collision");
                 angle = oldAngle;
                 collisionPositionOffset = Vector2.zero;
-            }        
+            }
+            else {
+                isGrounded = true;
+
+//                playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+//                playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
+//
+//                velocity = Vector2.Dot(velocity, playerRight) * playerRight;
+//                groundSpeed = Vector2.Dot(velocity, playerRight);
+
+                velocity = Vector2.zero;
+            }
         }
+        Debug.Log("Collision Position Offset from Concave Slope: " + collisionPositionOffset.ToString("F10"));
         return collisionPositionOffset;
     }
 
@@ -478,15 +491,14 @@ public class KinematicPlayer : MonoBehaviour {
         RaycastHit2D downSlopeRayHit = Physics2D.Raycast(downSlopeRayOrigin, downSlopeRayTravelDistance.normalized, downSlopeRayTravelDistance.magnitude, layerMask);
         Debug.DrawRay(downSlopeRayOrigin, downSlopeRayTravelDistance, Color.green);
 
-        if (downSlopeRayHit && downSlopeRayHit.distance > 0 && !wasGrounded) {
-            UnityEditor.EditorApplication.isPaused = true;
+        if (downSlopeRayHit && downSlopeRayHit.distance > 0) {
+//            UnityEditor.EditorApplication.isPaused = true;
             Debug.DrawRay(downSlopeRayHit.point, downSlopeRayHit.normal * 10, Color.blue);
             collisionPositionOffset = downSlopeRayHit.point - position + halfWidth * playerUp;
 
             float oldAngle = angle;
             angle = Vector2.SignedAngle(-Vector2.up, -downSlopeRayHit.normal);
             float angleDifference = Mathf.Abs(angle - oldAngle);
-
 
             if (angleDifference >= 180 - 0.001f) {
                 angleDifference = Mathf.Abs(angleDifference - 360);
@@ -496,18 +508,16 @@ public class KinematicPlayer : MonoBehaviour {
                 Debug.Log("nearly 90 degree collision: " + angleDifference.ToString("F10"));
                 angle = 0;
                 collisionPositionOffset = Vector2.zero;
-//
+
                 isGrounded = false;
                 groundSpeed = velocity.x;
             }
-            else {
-//                isGrounded = true;
-            }
         }
         else if (downSlopeRayHit && downSlopeRayHit.distance == 0) {
-            isGrounded = true;
+//            isGrounded = true;
         }
 
+        Debug.Log("Collision Position Offset from Convex Slope: " + collisionPositionOffset.ToString("F10"));
         return collisionPositionOffset;
     }
 
