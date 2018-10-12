@@ -81,7 +81,6 @@ public class KinematicPlayer : MonoBehaviour {
         UpdateGroundVelocity();
         SetVelocityFromGroundSpeed();
 
-
         float oldAngle = angle;
         Vector2 playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
         Vector2 playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
@@ -99,7 +98,6 @@ public class KinematicPlayer : MonoBehaviour {
             isGrounded = false;
             angle = 0;
         }
-
 
         Vector2 collisionPositionOffset = CheckCollision(position);
 //        SetVelocityFromGroundSpeed();
@@ -142,7 +140,6 @@ public class KinematicPlayer : MonoBehaviour {
             distanceChanged = velocity.magnitude * Time.deltaTime;
         }
 //        float distanceChanged = 0;
-
 
         position += velocity * Time.deltaTime - distanceChanged * velocity.normalized;
 
@@ -324,7 +321,7 @@ public class KinematicPlayer : MonoBehaviour {
         Vector2 direction = velocity.normalized;
 
 
-        int rayCount = 3;
+        int rayCount = 1;
         for (int i = 0; i < rayCount; i++) {
             Vector2 verticalRayOrigin = position + halfWidth * facingDirection - margin * direction;
 
@@ -345,13 +342,9 @@ public class KinematicPlayer : MonoBehaviour {
 
                 collisionPositionOffset = (verticalRayHit.distance - margin) * direction;
                 Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
-                float storedVelocity = Vector2.Dot(velocity, playerUp);
-                Vector2 perpendicularHitDirection = (Vector2)Vector3.Cross(Vector3.forward, hitDirection);
-
-                velocity = storedVelocity * perpendicularHitDirection;
+                velocity -= velocityInHitDirection + margin*hitDirection;
                 groundSpeed = Vector2.Dot(velocity, playerRight);
-
-
+                wasGrounded = false;
                 break;
             }
         }
@@ -373,7 +366,7 @@ public class KinematicPlayer : MonoBehaviour {
 
             Vector2 direction = velocity.normalized;
 
-            int rayCount = 1;
+            int rayCount = 3;
             for (int i = 0; i < rayCount; i++) {
                 Vector2 wallRayOrigin = position + halfWidth * facingDirection - margin * direction;
 
@@ -403,17 +396,9 @@ public class KinematicPlayer : MonoBehaviour {
                     if (angleDifference >= maxClimbAngle - 0.001f) {
                         collisionPositionOffset += (wallRayHit.distance - margin) * direction;
                         Vector2 velocityInHitDirection = Vector2.Dot(velocity, hitDirection) * hitDirection;
-                        float storedVelocity = Vector2.Dot(velocity, playerUp);
-                        Vector2 perpendicularHitDirection = (Vector2)Vector3.Cross(Vector3.forward, hitDirection);
-
-                        // checking left collider
-                        if (index == 1)
-                            perpendicularHitDirection *= -1;
-
-                        velocity = storedVelocity * perpendicularHitDirection;
-                        Debug.DrawRay(position + halfWidth * facingDirection + collisionPositionOffset, velocity * Time.deltaTime, Color.white);
-                        Debug.DrawRay(position + collisionPositionOffset, velocity * Time.deltaTime, Color.gray);
+                        velocity -= velocityInHitDirection + margin*hitDirection;
                         groundSpeed = Vector2.Dot(velocity, playerRight);
+                        wasGrounded = false;
                         break;
                     }
                 }
@@ -459,13 +444,12 @@ public class KinematicPlayer : MonoBehaviour {
             else {
                 isGrounded = true;
 
-//                playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
-//                playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
-//
-//                velocity = Vector2.Dot(velocity, playerRight) * playerRight;
-//                groundSpeed = Vector2.Dot(velocity, playerRight);
+                playerRight = Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right;
+                playerUp = (Vector2)Vector3.Cross(Vector3.forward, playerRight);
 
-                velocity = Vector2.zero;
+                float rightSpeed = Vector2.Dot(velocity, playerRight);
+
+                velocity = rightSpeed * playerRight;
             }
         }
         Debug.Log("Collision Position Offset from Concave Slope: " + collisionPositionOffset.ToString("F10"));
